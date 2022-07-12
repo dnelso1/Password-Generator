@@ -18,6 +18,9 @@ def generatePwd():
     
     return pwd
 
+################################
+#  Functions
+################################
 
 def displayPwd():
     pwd = generatePwd()
@@ -64,6 +67,11 @@ spinbox_max = tk.StringVar()
 
 # GUI title
 root.title("Password Generator")
+
+
+################################
+#  Labels
+################################
 
 # label for password
 #pwd_label = tk.Label(root, text="Password")
@@ -121,6 +129,11 @@ min_nums_label.grid(column=0, row=50, sticky="W")
 # label for minimum special characters (symbols)
 min_symbols_label = tk.Label(root, text="Min Special")
 min_symbols_label.grid(column=0, row=55, sticky="W")
+
+
+################################
+#  Interactive Elements
+################################
 
 # combo box for length values
 """combo = tk.ttk.Combobox(root, textvariable=pwd_length)

@@ -3,6 +3,10 @@ import pyperclip
 import tkinter as tk
 import tkinter.ttk
 
+################################
+#  Functions
+################################
+
 def generatePwd():
     entry.delete(0, tk.END)
 
@@ -17,10 +21,6 @@ def generatePwd():
         pwd = pwd + random.choice(lower)
     
     return pwd
-
-################################
-#  Functions
-################################
 
 def displayPwd():
     pwd = generatePwd()
@@ -76,7 +76,7 @@ root.title("Password Generator")
 # label for password
 #pwd_label = tk.Label(root, text="Password")
 #pwd_label.grid(column=0, row=5)
-entry = tk.Entry(root, width=25)
+entry = tk.Entry(root, width=26)
 entry.grid(column=1, row=5, sticky="W")
 
 # generate button

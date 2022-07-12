@@ -7,6 +7,9 @@ def generatePwd():
     entry.delete(0, tk.END)
 
     lower = "abcdefghijklmnopqrstuvwxyz"
+    upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    numbers = "0123456789"
+    specials = "!@#$%^&*()?"
     length = pwd_length.get()
     pwd = ""
 
@@ -28,6 +31,15 @@ def slide(var):
     slide_label = tk.Label(root, text=slider.get())
     slide_label.grid(column=1, row=20, sticky="W", ipadx=52)
 
+def spinbox(var):
+    # spin box for minimum numbers
+    nums_spinbox = tk.Spinbox(root, from_=2, to=slider.get(), width=2)
+    nums_spinbox.grid(column=1, row=50, sticky="E")
+
+    # spin box for minimum special characters
+    symbols_spinbox = tk.Spinbox(root, from_=2, to=slider.get(), width=2)
+    symbols_spinbox.grid(column=1, row=55, sticky="E")
+
 def includeLows():
     pass
 
@@ -42,12 +54,13 @@ def includeSymbols():
 
 # create GUI
 root = tk.Tk()
-root.geometry("380x500")
+root.geometry("428x500")
 pwd_length = tk.IntVar()
 low_letters = tk.IntVar()
 cap_letters = tk.IntVar()
 nums = tk.IntVar()
 symbols = tk.IntVar()
+spinbox_max = tk.StringVar()
 
 # GUI title
 root.title("Password Generator")
@@ -97,6 +110,18 @@ symbols_hover.grid(column=1, row=40, sticky="W")
 
 # label for L33T replacement
 
+# label for requirements
+reqs_label = tk.Label(root, text="Requirements:")
+reqs_label.grid(column=0, row=45, sticky="W")
+
+# label for minimum numbers
+min_nums_label = tk.Label(root, text="Min Numbers")
+min_nums_label.grid(column=0, row=50, sticky="W")
+
+# label for minimum special characters (symbols)
+min_symbols_label = tk.Label(root, text="Min Special")
+min_symbols_label.grid(column=0, row=55, sticky="W")
+
 # combo box for length values
 """combo = tk.ttk.Combobox(root, textvariable=pwd_length)
 combo['values'] = (8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -131,5 +156,13 @@ nums_box.grid(column=1, row=35, sticky="E")
 # check box for special characters (symbols)
 symbols_box = tk.Checkbutton(root, variable=symbols, onvalue=1, offvalue=0, command=includeSymbols)
 symbols_box.grid(column=1, row=40, sticky="E")
+
+# spin box for minimum numbers
+nums_spinbox = tk.Spinbox(root, from_=2, to=pwd_length.get(), command=spinbox, width=2)
+nums_spinbox.grid(column=1, row=50, sticky="E")
+
+# spin box for minimum special characters
+symbols_spinbox = tk.Spinbox(root, from_=2, to=pwd_length.get(), command=spinbox, width=2)
+symbols_spinbox.grid(column=1, row=55, sticky="E")
 
 root.mainloop()

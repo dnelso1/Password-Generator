@@ -1,8 +1,6 @@
-import random
-import pyperclip
+import random, pyperclip, pika
 import tkinter as tk
 import tkinter.ttk
-import pika
 from PIL import Image, ImageTk
 
 LOWER = "abcdefghijklmnopqrstuvwxyz"
@@ -10,7 +8,7 @@ UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 NUMBERS = "0123456789"
 SPECIALS = "!@#$%^&*()}{?"
 
-# create GUI
+# create GUI and variables
 root = tk.Tk()
 root.geometry("428x500")
 root.title("Password Generator")
@@ -48,14 +46,22 @@ def generatePwd():
     for _ in range(length):
         pwd += random.choice(chars)
     
-    displayPwd(pwd)
+    displayPwd(pwd, '')
 
-def displayPwd(pwd):
-    pwd_entry.insert(10, pwd)
+def displayPwd(pwd, src):
+    if src == "convert":
+        l33t_entry.delete(0, tk.END)
+        l33t_entry.insert(10, pwd)
+    else:
+        pwd_entry.insert(10, pwd)
 
-def copyPwd():
-    pwd = pwd_entry.get()
-    pyperclip.copy(pwd)
+def copyPwd(src):
+    if src == "convert":
+        pwd = l33t_entry.get()
+        pyperclip.copy(pwd)
+    else:
+        pwd = pwd_entry.get()
+        pyperclip.copy(pwd)
 
 def lenSlide(var):
     slide_label = tk.Label(root, text=len_slider.get())
@@ -79,16 +85,16 @@ def convertToL33t():
     def on_response(ch, method, properties, body):
         print(" [x] Received converted password")
         converted_pwd = body.decode()
-        displayConvertedPwd(converted_pwd)
+        displayPwd(converted_pwd, "convert")
         channel.stop_consuming()
 
     # start consuming messages
     channel.basic_consume(queue='converted', on_message_callback=on_response, auto_ack=True)
     channel.start_consuming()
 
-def displayConvertedPwd(pwd):
+"""def displayConvertedPwd(pwd):
     l33t_entry.delete(0, tk.END)
-    l33t_entry.insert(10, pwd)
+    l33t_entry.insert(10, pwd)"""
 
 """def numSlide(var):
     slide_label = tk.Label(root, text=nums_slider.get())
@@ -116,24 +122,8 @@ def symbolSlide(var):
 # * * * * * * * * * * * * * * * *
 
 # label for password
-#pwd_label = tk.Label(root, text="Password")
-#pwd_label.grid(column=0, row=5)
 pwd_entry = tk.Entry(root, width=26)
 pwd_entry.grid(column=1, row=5, sticky="W")
-
-# regenerate button
-original_regen_img = Image.open("Images/regenerate.jpeg")
-resized_regen_img = original_regen_img.resize((20, 20), Image.Resampling.LANCZOS)
-regen_img = ImageTk.PhotoImage(resized_regen_img)
-gen_button = tk.Button(root, image=regen_img, command=generatePwd)
-gen_button.grid(column=2, row=5)
-
-# copy button
-original_copy_img = Image.open("Images/copy.jpeg")
-resized_copy_img = original_copy_img.resize((20, 20), Image.Resampling.LANCZOS)
-copy_img = ImageTk.PhotoImage(resized_copy_img)
-copy_button = tk.Button(root, image=copy_img, command=copyPwd)
-copy_button.grid(column=3, row=5)
 
 # label for pwd length
 length_label = tk.Label(root, text="Length")
@@ -169,23 +159,10 @@ symbols_hover = tk.Label(root, text="ex: p&ssw!r#", font=('*Font', '8'), fg="gra
 symbols_hover.grid(column=1, row=40, sticky="W")
 
 # label for L33T conversion
-l33t_label = tk.Label(root, text="Convert your password to L33T:")
-l33t_label.grid(column=1, row=45, columnspan=2, sticky="W")
+l33t_label = tk.Label(root, text="L33T Converter:")
+l33t_label.grid(column=0, row=45, columnspan=2, sticky="W")
 l33t_entry = tk.Entry(root, width=26)
 l33t_entry.grid(column=1, row=50, sticky="W")
-
-# l33t conversion button
-l33t_button = tk.Button(root, text="Convert", command=convertToL33t)
-l33t_button.grid(column=2, row=50)
-
-"""
-# label for minimum numbers
-min_nums_label = tk.Label(root, text="Min Numbers")
-min_nums_label.grid(column=0, row=50, sticky="W")
-
-# label for minimum special characters (symbols)
-min_symbols_label = tk.Label(root, text="Min Special")
-min_symbols_label.grid(column=0, row=55, sticky="W")"""
 
 
 
@@ -202,14 +179,24 @@ combo.current(8)
 combo.bind('<<ComboboxSelected>>')
 combo.grid(column=1, row=1)"""
 
+# regenerate button
+original_regen_img = Image.open("Images/regenerate.jpeg")
+resized_regen_img = original_regen_img.resize((20, 20), Image.Resampling.LANCZOS)
+regen_img = ImageTk.PhotoImage(resized_regen_img)
+gen_button = tk.Button(root, image=regen_img, command=generatePwd)
+gen_button.grid(column=2, row=5)
+
+# password copy button
+original_copy_img = Image.open("Images/copy.jpeg")
+resized_copy_img = original_copy_img.resize((20, 20), Image.Resampling.LANCZOS)
+copy_img = ImageTk.PhotoImage(resized_copy_img)
+copy_button = tk.Button(root, image=copy_img, command=lambda: copyPwd(''))
+copy_button.grid(column=3, row=5)
+
 # slider for length values
 len_slider = tk.Scale(root, variable=pwd_length, from_=8, to=32, orient="horizontal", showvalue=0, command=lenSlide)
 len_slider.set(16)
 len_slider.grid(column=1, row=20, sticky="E")
-
-# label for slider
-#slide_label = tk.Label(root, text=slider.get())
-#slide_label.grid(column=1, row=1, sticky=tk.W)
 
 # check box for lowercase letters
 low_box = tk.Checkbutton(root, variable=low_letters, onvalue=1, offvalue=0, command=generatePwd)
@@ -230,14 +217,12 @@ nums_box.grid(column=1, row=35, sticky="E")
 symbols_box = tk.Checkbutton(root, variable=symbols, onvalue=1, offvalue=0, command=generatePwd)
 symbols_box.grid(column=1, row=40, sticky="E")
 
-"""# spin box for minimum numbers
-nums_slider = tk.Scale(root, variable=nums_min, from_=2, to=pwd_length.get(), orient="horizontal", showvalue=0, command=numSlide)
-nums_slider.set(3)
-nums_slider.grid(column=1, row=50, sticky="E")
+# l33t conversion button
+l33t_button = tk.Button(root, text="Convert", command=convertToL33t)
+l33t_button.grid(column=2, row=50)
 
-# spin box for minimum special characters
-symbols_slider = tk.Scale(root, variable=symbols_min, from_=2, to=pwd_length.get(), orient="horizontal", showvalue=0, command=symbolSlide)
-symbols_slider.set(3)
-symbols_slider.grid(column=1, row=55, sticky="E")"""
+# l33t copy button
+l33t_copy_button = tk.Button(root, image=copy_img, command=lambda: copyPwd('convert'))
+l33t_copy_button.grid(column=3, row=50)
 
 root.mainloop()
